@@ -1,20 +1,34 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# დამხმარე პროგრამა — APK აწყობა GitHub-ით
 
-# Run and deploy your AI Studio app
+## რა ფაილები დაგჭირდება
+ატვირთე GitHub-ის რეპოზიტორიში ზუსტად ეს სტრუქტურით:
 
-This contains everything you need to run your app locally.
+```
+your-repo/
+├── package.json
+├── capacitor.config.json
+├── scripts/
+│   └── patch_manifest.py
+├── resources/
+│   └── icon.png            ← აპის ლოგო (ბინარული ფაილი — Upload files-ით!)
+├── www/
+│   └── index.html          ← ეს არის დამხმარე პროგრამის მთავარი ფაილი
+└── .github/
+    └── workflows/
+        └── build-apk.yml
+```
 
-View your app in AI Studio: https://ai.studio/apps/a402f5f3-8c1a-49f4-9bd7-79161cc211a2
+## ორი განსხვავებული ატვირთვის წესი
+- **ტექსტური ფაილები** (`.json`, `.py`, `.html`, `.yml`, `.md`): **Add file → Create new file** → ჩაწერე ბილიკი → ჩასვი შიგთავსი → Commit.
+- **ლოგო/ხატულა** (`resources/icon.png`) — ეს ბინარული სურათია, ტექსტად ვერ ჩასვამ. საჭიროა: **Add file → Upload files** → ჩამოტვირთე ეს PNG შენს ტელეფონზე → ატვირთე იმავე ბილიკზე (`resources/icon.png`).
+1. შექმენი ახალი, ცარიელი რეპოზიტორია (მაგ. `damkhmare-app`).
+2. თითოეული ფაილისთვის: **Add file → Create new file**, ჩაწერე ზუსტად ის ბილიკი, რაც ზემოთაა ნაჩვენები (მაგ. `www/index.html`), და ჩასვი შესაბამისი შიგთავსი.
+3. ბოლოს გადადი **Actions** ჩანართში — build ავტომატურად დაიწყება push-ის შემდეგ (ან `Run workflow` ღილაკით ხელით გაუშვი).
+4. აშენების დასრულების შემდეგ, იმავე გაშვების გვერდზე ქვემოთ იქნება **Artifacts** სექცია — იქიდან ჩამოტვირთე `damkhmare-apk`, შიგნით იქნება `app-debug.apk`.
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## მნიშვნელოვანი
+- `android/` საქაღალდეს **არ ატვირთავ** — workflow თავად ქმნის მას პირველივე გაშვებაზე (`npx cap add android`).
+- APK იქნება **debug** ვერსია — ტელეფონზე დასაყენებლად საკმარისია, უბრალოდ ჩართე "უცნობი წყაროდან დაყენება" პარამეტრებში.
+- თუ მომავალში `www/index.html`-ს განაახლებ, უბრალოდ იმ ერთ ფაილს გადააწერ ("Edit" → ჩასვი ახალი შიგთავსი → Commit) — ყველაფერი დანარჩენი ავტომატურად ხელახლა აშენდება.
+- `scripts/patch_manifest.py` ავტომატურად უმატებს შეხსენებების (Local Notifications) ნებართვებს Android Manifest-ს — ხელით არაფრის შეცვლა არ დაგჭირდება.
+- `resources/icon.png` არის აპის ლოგო — build-ის დროს ავტომატურად გენერირდება APK-ის ყველა საჭირო ზომის ხატულა (`@capacitor/assets`).
