@@ -1,19 +1,32 @@
 from pathlib import Path
+import re
 import sys
 
 manifest = Path("android/app/src/main/AndroidManifest.xml")
+
 if not manifest.exists():
-    print("AndroidManifest.xml not found")
-    sys.exit(1)
+    sys.exit("AndroidManifest.xml not found")
 
 content = manifest.read_text(encoding="utf-8")
+
 permission = '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />'
 
-if permission not in content:
-    pos = content.find(">")
-    if pos < 0:
-        sys.exit("Invalid AndroidManifest.xml")
-    content = content[:pos + 1] + "\n    " + permission + content[pos + 1:]
-    manifest.write_text(content, encoding="utf-8")
+content = re.sub(
+    r'\s*<uses-permission\s+android:name="android.permission.POST_NOTIFICATIONS"\s*/>',
+    '',
+    content
+)
 
-print("Notification permission ready")
+match = re.search(r'<manifest\b[^>]*>', content)
+
+if not match:
+    sys.exit("Manifest opening tag not found")
+
+content = (
+    content[:match.end()]
+    + "\n    " + permission
+    + content[match.end():]
+)
+
+manifest.write_text(content, encoding="utf-8")
+print("Manifest fixed successfully")
